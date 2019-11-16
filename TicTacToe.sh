@@ -14,6 +14,7 @@ for (( row=1; row<4 ; row++ )) do
 done
 
 function show_Board(){
+	
 	for (( row=1; row<4 ; row++ )) do
    	for (( column=1; column<4 ; column++ )) do
 			if [ ${board[$row,$column]}==0 ]
