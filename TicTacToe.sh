@@ -29,14 +29,17 @@ done
 }
 
 function toss_Assign_Sign(){
-	if [ $((RANDOM%2))==1 ]
+	if [ $((RANDOM%2)) -eq 0 ]
 	then
-			USER_SIGN=X
+		USER_SIGN=X
 	else
-			COMP_SIGN=X
+		COMP_SIGN=X
 	fi
 	echo "Your sign is "$USER_SIGN" and computer sign is "$COMP_SIGN
 }
+
+
+
 
 initialize_Board
 toss_Assign_Sign
