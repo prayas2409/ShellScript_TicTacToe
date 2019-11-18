@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 declare -A board
 BOARD_ROWS=3
@@ -8,22 +8,23 @@ COMP_SIGN=0
 
 function initialize_Board(){
 	for (( key=1; key<=$BOARD_SIZE ; key++ )) do
-      		board["$key"]=0
+      		board[$key]=0
       	done
 }
 
 function show_Board(){
 
-	for (( row=1; row<4 ; row++ )) do
-	   	for (( column=1; column<4 ; column++ )) do
-			if [ ${board[$row,$column]}==0 ]
-         		then
-				printf  _" "
-        		else
-				printf ${board[$row,$column]}" "
-         		fi
-		done
-   		echo
+	for (( count=1; count<$BOARD_SIZE ; count++ )) do
+		if [ ${board[$count]} -eq 0 ]
+         	then
+			printf  _" "
+        	else
+			printf ${board[$count]}" "
+         	fi
+		if [ $(( $count % $BOARD_ROWS )) -eq 0 ]
+		then
+			echo
+		fi
 	done
 }
 
