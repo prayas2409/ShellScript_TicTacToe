@@ -3,12 +3,15 @@
 declare -A board
 BOARD_ROWS=3
 BOARD_SIZE=$(($BOARD_ROWS*$BOARD_ROWS))
+USER_SIGN=0
+COMP_SIGN=0
 
 function initialize_Board(){
 	for (( key=1; key<=$BOARD_SIZE ; key++ )) do
       		board["$key"]=0
       	done
 }
+
 function show_Board(){
 
 	for (( row=1; row<4 ; row++ )) do
@@ -57,10 +60,9 @@ function take_User_Input(){
 	fi
 }
 
-
 initialize_Board
 toss_Assign_Sign
 toss_Plays_First
 show_Board
 take_User_Input
-
+echo ${board[@]}
