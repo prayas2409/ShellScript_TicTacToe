@@ -50,8 +50,21 @@ function toss_Plays_First(){
    	fi
 }
 
+function take_User_Input(){
+	read -p "Please enter the number between 1-9 where insert your $USER_SIGN in board" input;
+	echo $input "hi";
+
+        if [  $input -gt 0  -a $input -le 9 ]
+	then
+		echo valid input
+	else
+		echo invalid input
+	fi
+}
+
 
 initialize_Board
 toss_Assign_Sign
 toss_Plays_First
 show_Board
+take_User_Input
