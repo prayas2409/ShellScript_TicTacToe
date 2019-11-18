@@ -1,13 +1,12 @@
 #!/bin/bash
 
 declare -A board
-board_Size=3
+BOARD_ROWS=3
+BOARD_SIZE=$(($BOARD_ROWS*$BOARD_ROWS))
 
 function initialize_Board()
-for (( row=1; row<4 ; row++ )) do
-      for (( column=1; column<4 ; column++ )) do
-#         read var
-			board[$row,$column]=0
+for (( key=1; key<$BOARD_SIZE ; key++ )) do
+      board["$key"]=0
       done
 done
 
