@@ -14,7 +14,7 @@ for (( row=1; row<4 ; row++ )) do
 done
 
 function show_Board(){
-	
+
 	for (( row=1; row<4 ; row++ )) do
    	for (( column=1; column<4 ; column++ )) do
 			if [ ${board[$row,$column]}==0 ]
@@ -29,7 +29,8 @@ done
 }
 
 function toss_Assign_Sign(){
-	if [ $((RANDOM%2)) -eq 0 ]
+	randomVariable=$((RANDOM%2))
+	if [ $randomVariable -eq 0 ]
 	then
 		USER_SIGN=X
 	else
@@ -38,9 +39,18 @@ function toss_Assign_Sign(){
 	echo "Your sign is "$USER_SIGN" and computer sign is "$COMP_SIGN
 }
 
-
+function toss_Plays_First(){
+	randomVariable=$((RANDOM%2))
+	if [ $randomVariable -eq 0 ]
+   then
+      echo Computer plays first
+   else
+      You play first
+   fi
+}
 
 
 initialize_Board
 toss_Assign_Sign
+toss_Plays_First
 show_Board
