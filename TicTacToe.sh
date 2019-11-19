@@ -107,16 +107,27 @@ function wins(){
 function search_Daigonal_Left_Right(){
 	local count=0
 	local increase_by=$((BOARD_ROWS+1))
+	local position=" "
 	for (( daig_Key=1; daig_Key <= $BOARD_SIZE; daig_Key+=$increase_by )) do
 		if [ ${board[$daig_Key]} == $1 ]
 		then
 			((count++))
+		else
+                        if [ "$position" == " " -a "${board[$daig_Key]}" == "0" ]
+                        then
+                                position=$daig_key
+                        fi
+
 		fi
 	done
 	if [ $count -eq $BOARD_ROWS ]
 	then
 		wins $1
 		stop=true
+	elif [ $count -eq $(($BOARD_ROWS-1)) ]
+        then
+                echo $position
+
 	fi
 }
 
@@ -124,35 +135,55 @@ function search_Daigonal_Right_Left(){
         local count=0
         local increase_by=$((BOARD_ROWS-1))
 	local left_Bottom_Limit=$((BOARD_SIZE-BOARD_ROWS+1))
-        for (( daig_Key=$BOARD_ROWS; daig_Key <= $left_Bottom_Limit; daig_Key+=$increase_by )) do
+        local position=" "
+	for (( daig_Key=$BOARD_ROWS; daig_Key <= $left_Bottom_Limit; daig_Key+=$increase_by )) do
                 if [ ${board[$daig_Key]} == $1 ]
                 then
                         ((count++))
+		else
+	                if [ "$position" == " " -a "${board[$daig_Key]}" == "0" ]
+                        then
+        	                position=$daig_Key
+                        fi
+
                 fi
         done
         if [ $count == $BOARD_ROWS ]
         then
                 wins $1
 		stop=true
+        elif [ $count -eq $(($BOARD_ROWS-1)) ]
+        then
+	        echo $position
         fi
 }
 
 function search_Rows(){
 	local count=0
 	key=0
+	local position=" "
 	for (( row=0;row<$BOARD_ROWS;row++ )) do
 		count=0
+		local position=" "
 		for (( col=1; col<=$BOARD_ROWS; col++ )) do
 			key=$(($BOARD_ROWS*row+col ))
 			if [ ${board[$key]} == $1 ]
 			then
 				(( count++ ))
+			else
+				if [ "$position" == " " -a "${board[$key]}" == "0" ]
+				then
+					position=$key
+				fi
 			fi
 		done
 		if [ $count -eq $BOARD_ROWS ]
 		then
 			wins $1
 			break
+		elif [ $count -eq $(($BOARD_ROWS-1)) ]
+		then
+			echo $position" "
 		fi
 	done
 	if [ $count -eq $BOARD_ROWS ]
@@ -166,17 +197,25 @@ function search_Columns(){
         key=0
         for (( col=1;col<=$BOARD_ROWS;col++ )) do
                 count=0
+		local position=" "
                 for (( row=0; row<=$BOARD_ROWS; row++ )) do
                         key=$(($BOARD_ROWS*row+col ))
                         if [ "${board[$key]}" == "$1" ]
                         then
                                 (( count++ ))
+			else
+				if [ "$position" == " " -a "${board[$key]}" == "0" ]
+				position=$key
                         fi
+
                 done
                 if [ $count -eq $BOARD_ROWS ]
                 then
                         wins $1
                         break
+		elif [ $count -eq $(($BOARD_ROWS-1)) ]
+                then
+                        echo $position" "
 
 		fi
         done
