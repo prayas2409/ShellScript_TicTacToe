@@ -6,17 +6,19 @@ BOARD_SIZE=$(($BOARD_ROWS*$BOARD_ROWS))
 USER_SIGN="O"
 COMP_SIGN="O"
 stop=false
+valid=false
 
 function initialize_Board(){
+	local key=0
 	for (( key=1; key<=$BOARD_SIZE ; key++ )) do
       		board[$key]=0
       	done
 }
 
 function show_Board(){
-
+	local count=0
 	for (( count=1; count<=$BOARD_SIZE ; count++ )) do
-		if [ ${board[$count]} -eq 0 ]
+		if [ "${board[$count]}" == "0" ]
          	then
 			printf  _" "
         	else
@@ -45,29 +47,47 @@ function toss_Plays_First(){
 	if [ $randomVariable -eq 0 ]
 	then
 		echo Computer plays first
+		first=user
 	else
 		echo You play first
+		first=comp
    	fi
 }
 
-function take_User_Input(){
-	valid=false
-	while [ $valid==false ]
-	do
-		read -p "Please enter the number between 1-9 where insert your $USER_SIGN in board" input;
-		echo $input;
+function check_Valid(){
+	if [ $1 -gt 0  -a $1 -le 9 ]
+	then
+		valid=true
+	fi
+	if [ "$valid" == "true" -a "${board[$1]}" == "0" ]
+        then
+        	board[$1]=$2
+	else
+		valid=false
+        fi
 
-        	if [  $input -gt 0  -a $input -le 9 ]
+}
+
+function comuter_Plays(){
+	while [ "$valid" == "false" ]
+        do
+		number=$((RANDOM%9+1))
+		check_Valid $number $COMP_SIGN
+	done
+	valid=false
+}
+
+function take_User_Input(){
+	while [ "$valid" == "false" ]
+	do
+		read -p "Please enter the number between 1-9 where insert your $USER_SIGN in board " input;
+		check_Valid $input $USER_SIGN
+		if [ "$valid" == "false" ]
 		then
-			valid=true
-		fi
-		if [ valid==true -a ${board[$input]} == 0 ]
-		then
-			board[$input]=$USER_SIGN
-		else
 			echo Input not accepted please try again
 		fi
 	done
+	valid=false
 }
 
 function send_var(){
@@ -88,7 +108,7 @@ function search_Daigonal_Left_Right(){
 	local count=0
 	local increase_by=$((BOARD_ROWS+1))
 	for (( daig_Key=1; daig_Key <= $BOARD_SIZE; daig_Key+=$increase_by )) do
-		if [ ${board[$daig_Key]} -eq $1 ]
+		if [ ${board[$daig_Key]} == $1 ]
 		then
 			((count++))
 		fi
@@ -108,7 +128,6 @@ function search_Daigonal_Right_Left(){
                 if [ ${board[$daig_Key]} == $1 ]
                 then
                         ((count++))
-			echo $daig_Key
                 fi
         done
         if [ $count == $BOARD_ROWS ]
@@ -125,7 +144,7 @@ function search_Rows(){
 		count=0
 		for (( col=1; col<=$BOARD_ROWS; col++ )) do
 			key=$(($BOARD_ROWS*row+col ))
-			if [ ${board[$key]}==$1 ]
+			if [ ${board[$key]} == $1 ]
 			then
 				(( count++ ))
 			fi
@@ -149,7 +168,7 @@ function search_Columns(){
                 count=0
                 for (( row=0; row<=$BOARD_ROWS; row++ )) do
                         key=$(($BOARD_ROWS*row+col ))
-                        if [ ${board[$key]}==$1 ]
+                        if [ "${board[$key]}" == "$1" ]
                         then
                                 (( count++ ))
                         fi
@@ -174,12 +193,22 @@ function check_Win(){
 	search_Columns $1
 }
 
-#initialize_Board
-#toss_Assign_Sign
-#toss_Plays_First
-#show_Board
-#take_User_Input
-#echo ${board[@]}
-#search_Daigonal_Left_Right $((1))
-hi=$(send_var $USER_SIGN )
-echo $hi
+function play(){
+	initialize_Board
+	toss_Assign_Sign
+	toss_Plays_First
+	while [ $stop == false ]
+	do
+		valid=false
+		show_Board
+		take_User_Input
+		valid=false
+#		echo ${board[@]}
+		check_Win $USER_SIGN
+		comuter_Plays
+		check_Win $COMP_SIGN
+	done
+	show_Board
+}
+
+play
