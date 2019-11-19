@@ -5,6 +5,7 @@ BOARD_ROWS=3
 BOARD_SIZE=$(($BOARD_ROWS*$BOARD_ROWS))
 USER_SIGN="O"
 COMP_SIGN="O"
+stop=false
 
 function initialize_Board(){
 	for (( key=1; key<=$BOARD_SIZE ; key++ )) do
@@ -32,9 +33,9 @@ function toss_Assign_Sign(){
 	randomVariable=$((RANDOM%2))
 	if [ $randomVariable -eq 0 ]
 	then
-		USER_SIGN=X
+		USER_SIGN="X"
 	else
-		COMP_SIGN=X
+		COMP_SIGN="X"
 	fi
 	echo "Your sign is "$USER_SIGN" and computer sign is "$COMP_SIGN
 }
@@ -50,23 +51,32 @@ function toss_Plays_First(){
 }
 
 function take_User_Input(){
-	read -p "Please enter the number between 1-9 where insert your $USER_SIGN in board" input;
-	echo $input "hi";
+	valid=false
+	while [ $valid==false ]
+	do
+		read -p "Please enter the number between 1-9 where insert your $USER_SIGN in board" input;
+		echo $input;
 
-        if [  $input -gt 0  -a $input -le 9 ]
-	then
-		echo valid input
-	else
-		echo invalid input
-	fi
+        	if [  $input -gt 0  -a $input -le 9 ]
+		then
+			valid=true
+		fi
+		if [ valid==true -a ${board[$input]} == 0 ]
+		then
+			board[$input]=$USER_SIGN
+		else
+			echo Input not accepted please try again
+		fi
+	done
 }
 
 function send_var(){
-	wins $(( $1 ))
+	echo $1
+	wins $1
 }
 
 function wins(){
-	if [ $1 -eq $USER_SIGN ]
+	if [ $1 == $USER_SIGN ]
 	then
 		echo "You won"
 	else
@@ -77,50 +87,99 @@ function wins(){
 function search_Daigonal_Left_Right(){
 	local count=0
 	local increase_by=$((BOARD_ROWS+1))
-	for (( daig_key=1; daig_key <= $BOARD_SIZE; daig_key+=$increase_by )) do
-		if [ ${board[$daig_key]} -eq $1 ]
+	for (( daig_Key=1; daig_Key <= $BOARD_SIZE; daig_Key+=$increase_by )) do
+		if [ ${board[$daig_Key]} -eq $1 ]
 		then
 			((count++))
 		fi
 	done
 	if [ $count -eq $BOARD_ROWS ]
 	then
-		wins $(($1))
-		echo 1
-	else
-		echo 0
+		wins $1
+		stop=true
+	fi
+}
+
+function search_Daigonal_Right_Left(){
+        local count=0
+        local increase_by=$((BOARD_ROWS-1))
+	local left_Bottom_Limit=$((BOARD_SIZE-BOARD_ROWS+1))
+        for (( daig_Key=$BOARD_ROWS; daig_Key <= $left_Bottom_Limit; daig_Key+=$increase_by )) do
+                if [ ${board[$daig_Key]} == $1 ]
+                then
+                        ((count++))
+			echo $daig_Key
+                fi
+        done
+        if [ $count == $BOARD_ROWS ]
+        then
+                wins $1
+		stop=true
+        fi
+}
+
+function search_Rows(){
+	local count=0
+	key=0
+	for (( row=0;row<$BOARD_ROWS;row++ )) do
+		count=0
+		for (( col=1; col<=$BOARD_ROWS; col++ )) do
+			key=$(($BOARD_ROWS*row+col ))
+			if [ ${board[$key]}==$1 ]
+			then
+				(( count++ ))
+			fi
+		done
+		if [ $count -eq $BOARD_ROWS ]
+		then
+			wins $1
+			break
+		fi
+	done
+	if [ $count -eq $BOARD_ROWS ]
+	then
+		stop=true
+	fi
+}
+
+function search_Columns(){
+        local count=0
+        key=0
+        for (( col=1;col<=$BOARD_ROWS;col++ )) do
+                count=0
+                for (( row=0; row<=$BOARD_ROWS; row++ )) do
+                        key=$(($BOARD_ROWS*row+col ))
+                        if [ ${board[$key]}==$1 ]
+                        then
+                                (( count++ ))
+                        fi
+                done
+                if [ $count -eq $BOARD_ROWS ]
+                then
+                        wins $1
+                        break
+
+		fi
+        done
+        if [ $count -eq $BOARD_ROWS ]
+        then
+                stop=true
 	fi
 }
 
 function check_Win(){
-	for ((column=1; column<=$BOARD_ROWS; column++ )) do
-		local count_row=0
-		local count_col=0
-		local count_daig_left_right=0
-		local count_daig_right_left=0
-		local row_key=$column
-		local daig_L_R_Key=$column
-		local daig_R_L_Key=$column
-		local collumn_key=$column
-		for (( count=1; count<$BOARD_ROWS; count++)) do
-			if [ $column -eq 1  -o  $column -eq $BOARD_ROWS ]
-			then
-				if [ $board[$row_key] -eq $1  ]
-				then
-				(( count_row++ ))
-				fi
-
-			fi
-
-		done
-	done
+	search_Daigonal_Left_Right $1
+	search_Daigonal_Right_Left $1
+	search_Rows $1
+	search_Columns $1
 }
 
-initialize_Board
-toss_Assign_Sign
-toss_Plays_First
-show_Board
-take_User_Input
-echo ${board[@]}
-search_Daigonal_Left_Right $((1))
-send_var $(($USER_SIGN))
+#initialize_Board
+#toss_Assign_Sign
+#toss_Plays_First
+#show_Board
+#take_User_Input
+#echo ${board[@]}
+#search_Daigonal_Left_Right $((1))
+hi=$(send_var $USER_SIGN )
+echo $hi
