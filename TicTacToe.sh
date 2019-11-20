@@ -270,6 +270,18 @@ function search_Columns_If_Won(){
 	fi
 }
 
+function block_Opponent(){
+
+	search_Rows_To_Get_Position $USER_SIGN
+	check_Valid $position $COMP_SIGN
+	search_Rows_To_Get_Position $USER_SIGN
+	check_Valid $position $COMP_SIGN
+	search_Daigonal_Left_Right $USER_SIGN
+	check_Valid $position $COMP_SIGN
+	search_Daigonal_Right_Left $USER_SIGN
+	check_Valid $position $COMP_SIGN
+
+}
 
 function check_If_Can_Win(){
 	search_Rows_To_Get_Position $COMP_SIGN
@@ -291,6 +303,7 @@ function check_Win(){
 
 function comp_Plays(){
 	check_If_Can_Win
+	block_Opponent
 	comuter_Plays_Random
 }
 
