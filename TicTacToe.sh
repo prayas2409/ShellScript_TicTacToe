@@ -274,7 +274,7 @@ function block_Opponent(){
 
 	search_Rows_To_Get_Position $USER_SIGN
 	check_Valid $position $COMP_SIGN
-	search_Rows_To_Get_Position $USER_SIGN
+	search_Columns_To_Get_Position $USER_SIGN
 	check_Valid $position $COMP_SIGN
 	search_Daigonal_Left_Right $USER_SIGN
 	check_Valid $position $COMP_SIGN
@@ -283,10 +283,30 @@ function block_Opponent(){
 
 }
 
+
+
+function take_Corners(){
+	if [ $added == "false" ]
+	then 
+		local key=1
+		check_Valid 1 $COMP_SIGN
+		
+		key=$((BOARD_ROWS*0+BOARD_ROWS))
+		check_Valid $key $COMP_SIGN
+		
+		key=$(( BOARD_ROWS*$((BOARD_ROWS-1)) + 1))	
+		check_Valid $key $COMP_SIGN
+		
+		key=$(( BOARD_ROWS*$((BOARD_ROWS-1)) + BOARD_ROWS))
+		check_Valid $key $COMP_SIGN
+	fi
+	
+}
+
 function check_If_Can_Win(){
 	search_Rows_To_Get_Position $COMP_SIGN
 	check_Valid $position $COMP_SIGN
-	search_Rows_To_Get_Position $COMP_SIGN
+	search_Columns_To_Get_Position $COMP_SIGN
 	check_Valid $position $COMP_SIGN
 	search_Daigonal_Left_Right $COMP_SIGN
 	check_Valid $position $COMP_SIGN
@@ -304,6 +324,7 @@ function check_Win(){
 function comp_Plays(){
 	check_If_Can_Win
 	block_Opponent
+	take_Corners
 	comuter_Plays_Random
 }
 
