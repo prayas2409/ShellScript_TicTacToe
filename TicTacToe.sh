@@ -339,6 +339,27 @@ function comp_Plays(){
 	comuter_Plays_Random
 }
 
+function is_Game_Over(){
+	local count=0
+	for values in ${board[@]}
+	do
+		if [ $values == "0" ]
+		then
+			((count++))
+		fi
+		if [ $count -gt 0 ]
+		then
+			break
+		fi
+	done
+	if [ $count -eq 0  -a $stop == "false" ]
+	then
+		echo "It's a tie"
+		stop=true
+	fi
+	
+}
+
 function play(){
 	initialize_Board
 	toss_Assign_Sign
@@ -356,13 +377,15 @@ function play(){
 			added=false
 	#		echo ${board[@]}
 			check_Win $USER_SIGN
+			is_Game_Over
 			first=comp
 		fi		
-		if [ $first == "comp" ]
+		if [ $first == "comp" -a $stop == "false" ]
 		then
 			comp_Plays
 			added=false		
 			check_Win $COMP_SIGN
+			is_Game_Over
 			first=user
 		fi
 	done
