@@ -73,6 +73,7 @@ function check_Valid(){
 	fi
 }
 
+# It is if nothing else if where we can add our Sign
 function comuter_Plays_Random(){
 	if [ "$added" == "false" ]
         then
