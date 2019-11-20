@@ -47,10 +47,10 @@ function toss_Plays_First(){
 	randomVariable=$((RANDOM%2))
 	if [ $randomVariable -eq 0 ]
 	then
-		echo Computer plays first
+		echo You play first
 		first=user
 	else
-		echo You play first
+		echo Computer plays first
 		first=comp
    	fi
 }
@@ -347,15 +347,24 @@ function play(){
 	do
 		valid=false
 		added=false
-		show_Board
-		take_User_Input
-		valid=false
-		added=false
-#		echo ${board[@]}
-		check_Win $USER_SIGN
-		comp_Plays
-		added=false		
-		check_Win $COMP_SIGN
+		
+		if [ $first == "user" ]
+		then	
+			show_Board
+			take_User_Input
+			valid=false
+			added=false
+	#		echo ${board[@]}
+			check_Win $USER_SIGN
+			first=comp
+		fi		
+		if [ $first == "comp" ]
+		then
+			comp_Plays
+			added=false		
+			check_Win $COMP_SIGN
+			first=user
+		fi
 	done
 	show_Board
 }
