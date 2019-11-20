@@ -289,7 +289,7 @@ function take_Corners(){
 	if [ $added == "false" ]
 	then 
 		local key=1
-		check_Valid 1 $COMP_SIGN
+		check_Valid $key $COMP_SIGN
 		
 		key=$((BOARD_ROWS*0+BOARD_ROWS))
 		check_Valid $key $COMP_SIGN
@@ -301,6 +301,15 @@ function take_Corners(){
 		check_Valid $key $COMP_SIGN
 	fi
 	
+}
+
+function take_Center(){
+	if [ $added == "false" ]
+	then 	
+		num_Rows_Ahead=$((BOARD_ROWS/2))
+		local key=$(( $(( BOARD_ROWS*num_Rows_Ahead )) + $((BOARD_ROWS-num_Rows_Ahead )) ))
+		check_Valid $key $COMP_SIGN
+	fi
 }
 
 function check_If_Can_Win(){
@@ -325,6 +334,7 @@ function comp_Plays(){
 	check_If_Can_Win
 	block_Opponent
 	take_Corners
+	take_Center
 	comuter_Plays_Random
 }
 
