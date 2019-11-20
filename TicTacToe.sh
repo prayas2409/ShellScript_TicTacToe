@@ -7,6 +7,7 @@ USER_SIGN="O"
 COMP_SIGN="O"
 stop=false
 valid=false
+position=0
 
 function initialize_Board(){
 	local key=0
@@ -55,26 +56,34 @@ function toss_Plays_First(){
 }
 
 function check_Valid(){
-	if [ $1 -gt 0  -a $1 -le 9 ]
-	then
-		valid=true
-	fi
-	if [ "$valid" == "true" -a "${board[$1]}" == "0" ]
+	if [ "$added" == "false" ]
         then
-        	board[$1]=$2
-	else
-		valid=false
-        fi
 
+		if [ $1 -gt 0  -a $1 -le $BOARD_SIZE ]
+		then
+			valid=true
+		fi
+		if [ "$valid" == "true" -a "${board[$1]}" == "0" ]
+		then
+			board[$1]=$2
+			added=true
+		else
+			valid=false
+		fi
+	fi
 }
 
-function comuter_Plays(){
-	while [ "$valid" == "false" ]
-        do
-		number=$((RANDOM%9+1))
-		check_Valid $number $COMP_SIGN
-	done
-	valid=false
+function comuter_Plays_Random(){
+	if [ "$added" == "false" ]
+        then
+
+		while [ "$valid" == "false" ]
+	        do
+			number=$((RANDOM%9+1))
+			check_Valid $number $COMP_SIGN
+		done
+		valid=false
+	fi
 }
 
 function take_User_Input(){
@@ -87,7 +96,7 @@ function take_User_Input(){
 			echo Input not accepted please try again
 		fi
 	done
-	valid=false
+
 }
 
 function send_var(){
@@ -105,131 +114,184 @@ function wins(){
 }
 
 function search_Daigonal_Left_Right(){
-	local count=0
-	local increase_by=$((BOARD_ROWS+1))
-	local position=" "
-	for (( daig_Key=1; daig_Key <= $BOARD_SIZE; daig_Key+=$increase_by )) do
-		if [ ${board[$daig_Key]} == $1 ]
-		then
-			((count++))
-		else
-                        if [ "$position" == " " -a "${board[$daig_Key]}" == "0" ]
-                        then
-                                position=$daig_key
-                        fi
-
-		fi
-	done
-	if [ $count -eq $BOARD_ROWS ]
-	then
-		wins $1
-		stop=true
-	elif [ $count -eq $(($BOARD_ROWS-1)) ]
+	if [ "$added" == "false" ]
         then
-                echo $position
 
-	fi
-}
-
-function search_Daigonal_Right_Left(){
-        local count=0
-        local increase_by=$((BOARD_ROWS-1))
-	local left_Bottom_Limit=$((BOARD_SIZE-BOARD_ROWS+1))
-        local position=" "
-	for (( daig_Key=$BOARD_ROWS; daig_Key <= $left_Bottom_Limit; daig_Key+=$increase_by )) do
-                if [ ${board[$daig_Key]} == $1 ]
-                then
-                        ((count++))
-		else
-	                if [ "$position" == " " -a "${board[$daig_Key]}" == "0" ]
-                        then
-        	                position=$daig_Key
-                        fi
-
-                fi
-        done
-        if [ $count == $BOARD_ROWS ]
-        then
-                wins $1
-		stop=true
-        elif [ $count -eq $(($BOARD_ROWS-1)) ]
-        then
-	        echo $position
-        fi
-}
-
-function search_Rows(){
-	local count=0
-	key=0
-	local position=" "
-	for (( row=0;row<$BOARD_ROWS;row++ )) do
-		count=0
-		local position=" "
-		for (( col=1; col<=$BOARD_ROWS; col++ )) do
-			key=$(($BOARD_ROWS*row+col ))
-			if [ ${board[$key]} == $1 ]
+		local count=0
+		local increase_by=$((BOARD_ROWS+1))
+		position=0
+		for (( daig_Key=1; daig_Key <= $BOARD_SIZE; daig_Key+=$increase_by )) do
+			if [ ${board[$daig_Key]} == $1 ]
 			then
-				(( count++ ))
-			else
-				if [ "$position" == " " -a "${board[$key]}" == "0" ]
-				then
-					position=$key
-				fi
+				((count++))
+			elif [ "$position" == "0" -a "${board[$daig_Key]}" == "0" ]
+	                then
+	                	position=$daig_key
 			fi
 		done
 		if [ $count -eq $BOARD_ROWS ]
 		then
 			wins $1
-			break
-		elif [ $count -eq $(($BOARD_ROWS-1)) ]
-		then
-			echo $position" "
+			stop=true
+		elif [ $count -ne $(($BOARD_ROWS-1)) ]
+	        then
+	                position=0
 		fi
-	done
-	if [ $count -eq $BOARD_ROWS ]
-	then
-		stop=true
 	fi
 }
 
-function search_Columns(){
-        local count=0
-        key=0
-        for (( col=1;col<=$BOARD_ROWS;col++ )) do
-                count=0
-		local position=" "
-                for (( row=0; row<=$BOARD_ROWS; row++ )) do
-                        key=$(($BOARD_ROWS*row+col ))
-                        if [ "${board[$key]}" == "$1" ]
-                        then
-                                (( count++ ))
-			else
-				if [ "$position" == " " -a "${board[$key]}" == "0" ]
-				position=$key
-                        fi
-
-                done
-                if [ $count -eq $BOARD_ROWS ]
-                then
-                        wins $1
-                        break
-		elif [ $count -eq $(($BOARD_ROWS-1)) ]
-                then
-                        echo $position" "
-
-		fi
-        done
-        if [ $count -eq $BOARD_ROWS ]
+function search_Daigonal_Right_Left(){
+	if [ "$added" == "false" ]
         then
-                stop=true
+
+	        local count=0
+	        local increase_by=$((BOARD_ROWS-1))
+		local left_Bottom_Limit=$((BOARD_SIZE-BOARD_ROWS+1))
+	        position=0
+		for (( daig_Key=$BOARD_ROWS; daig_Key <= $left_Bottom_Limit; daig_Key+=$increase_by )) do
+	                if [ ${board[$daig_Key]} == $1 ]
+	                then
+	                	(( count++ ))
+			elif [ "$position" == "0" -a "${board[$daig_Key]}" == "0" ]
+	                then
+	        		position=$daig_Key
+	                fi
+	        done
+	        if [ $count == $BOARD_ROWS ]
+	        then
+	                wins $1
+			stop=true
+	        elif [ $count -ne $(($BOARD_ROWS-1)) ]
+	        then
+		        position=0
+	        fi
 	fi
+}
+
+function search_Rows_To_Get_Position(){
+	if [ "$added" == "false" ]
+	then
+		local count=0
+	        key=0
+	        for (( row=0;row<$BOARD_ROWS;row++ )) do
+	                count=0
+	                position=0
+	                for (( col=1; col<=$BOARD_ROWS; col++ )) do
+	                        key=$((BOARD_ROWS*row+col ))
+	                        if [ ${board[$key]} == $1 ]
+	                        then
+	                                (( count++ ))
+	                        elif [ "$position" == "0" -a "${board[$key]}" == "0" ]
+	                        then
+        		                position=$key
+        	                fi
+        	        done
+        	        if [ $count -ne $(( BOARD_ROWS-1 )) ]
+        	        then
+        	                position=0
+			else
+				break
+	                fi
+	        done
+	fi
+}
+
+function search_Rows_If_Won(){
+	local count=0
+	key=0
+	for (( row=0; row<$BOARD_ROWS; row++ )) do
+		count=0
+		for (( col=1; col<=$BOARD_ROWS; col++ )) do
+			key=$(( BOARD_ROWS*row+col ))
+			if [ ${board[$key]} == $1 ]
+			then
+				(( count++ ))
+			fi
+		done
+		if [ $count -eq $BOARD_ROWS ]
+		then
+			wins $1
+			stop=true
+			break
+		fi
+	done
+}
+
+function search_Columns_To_Get_Position(){
+	if [ "$added" == "false" ]
+        then
+
+		local count=0
+		key=0
+		for (( col=1;col<=$BOARD_ROWS;col++ )) do
+		        count=0
+		        position=0
+		        for (( row=0; row<=$BOARD_ROWS; row++ )) do
+		                key=$((BOARD_ROWS*row+col ))
+		                if [ "${board[$key]}" == "$1" ]
+				then
+		                        (( count++ ))
+		                elif [ "$position" == "0" -a "${board[$key]}" == "0" ]
+				then
+					position=$key
+		                fi
+		        done
+		        if [ $count -ne $(( BOARD_ROWS-1 )) ]
+		        then
+		               position=0
+			else
+				break
+		        fi
+		done
+	fi
+}
+
+function search_Columns_If_Won(){
+	if [ "$added" == "false" ]
+        then
+		local count=0
+		key=0
+		for (( col=1;col<=$BOARD_ROWS;col++ )) do
+		        count=0
+		        for (( row=0; row<=$BOARD_ROWS; row++ )) do
+		                key=$(($BOARD_ROWS*row+col ))
+		                if [ "${board[$key]}" == "$1" ]
+		                then
+		                        (( count++ ))
+		                fi
+		        done
+		        if [ $count -eq $BOARD_ROWS ]
+		        then
+		                wins $1
+				stop=true
+				break
+			fi
+		done
+	fi
+}
+
+
+function check_If_Can_Win(){
+	search_Rows_To_Get_Position $COMP_SIGN
+	check_Valid $position $COMP_SIGN
+	search_Rows_To_Get_Position $COMP_SIGN
+	check_Valid $position $COMP_SIGN
+	search_Daigonal_Left_Right $COMP_SIGN
+	check_Valid $position $COMP_SIGN
+	search_Daigonal_Right_Left $COMP_SIGN
+	check_Valid $position $COMP_SIGN
 }
 
 function check_Win(){
 	search_Daigonal_Left_Right $1
 	search_Daigonal_Right_Left $1
-	search_Rows $1
-	search_Columns $1
+	search_Rows_If_Won $1
+	search_Columns_If_Won $1
+}
+
+function comp_Plays(){
+	check_If_Can_Win
+	comuter_Plays_Random
 }
 
 function play(){
@@ -239,12 +301,15 @@ function play(){
 	while [ $stop == false ]
 	do
 		valid=false
+		added=false
 		show_Board
 		take_User_Input
 		valid=false
+		added=false
 #		echo ${board[@]}
 		check_Win $USER_SIGN
-		comuter_Plays
+		comp_Plays
+		added=false		
 		check_Win $COMP_SIGN
 	done
 	show_Board
